@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>True Vine Game System v3.3</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script defer src="game.js"></script>
+</head>
+<body>
+  <div id="app-scale-wrapper">
+    <main id="app" aria-label="True Vine 主日學遊戲系統">
+      <header class="title-bar">
+        <h1>True Vine 主日學遊戲系統 v3.3</h1>
+        <div class="timer" id="timer">剩餘時間：60 秒</div>
+      </header>
+
+      <section class="control-panel panel">
+        <div class="control-row">
+          <div class="counter-control">
+            <label>組數</label>
+            <button data-action="teams-down">-</button>
+            <output id="team-count">2</output>
+            <button data-action="teams-up">+</button>
+          </div>
+
+          <div class="counter-control">
+            <label>時間</label>
+            <button data-action="time-down">-</button>
+            <output id="time-limit">60</output>
+            <span>秒</span>
+            <button data-action="time-up">+</button>
+          </div>
+
+          <div class="main-actions">
+            <button class="btn-primary" data-action="start">開始遊戲</button>
+            <button data-action="pause">暫停</button>
+            <button data-action="reset">重置</button>
+          </div>
+        </div>
+
+        <div class="control-row mode-row">
+          <span class="mode-label">遊戲模式</span>
+          <div class="mode-buttons">
+            <button class="mode-btn active" data-mode="memory">Memory Card</button>
+            <button class="mode-btn" data-mode="quiz">Bible Quiz</button>
+            <button class="mode-btn" data-mode="random">Random Question</button>
+            <button class="mode-btn" data-mode="verse">Verse Order</button>
+          </div>
+        </div>
+
+        <div class="control-row import-row">
+          <label for="excel-file">Excel 題庫匯入：</label>
+          <input type="file" id="excel-file" accept=".xlsx,.xls,.csv" />
+          <small>支援欄位：question, answer, optionA, optionB, optionC, optionD, reference, verse</small>
+        </div>
+      </section>
+
+      <section class="game-screen panel" id="game-screen" aria-live="polite"></section>
+
+      <section class="score-panel panel">
+        <h2>分數顯示區</h2>
+        <div id="score-list"></div>
+      </section>
+
+      <section class="design-panel panel">
+        <h2>v3.3 工程設計文件</h2>
+        <div class="design-grid">
+          <article>
+            <h3>🎨 UI Wireframe（2K）</h3>
+<pre>
++----------------------------------------------------------+
+| Title(72px)                       Timer(72px)            |
+| Control Panel (2400x200)                                    
+| Team / Time / Start-Pause-Reset / Mode Switch / Import      
+|----------------------------------------------------------|
+|                    Game Display Area                      |
+|   Memory: 4x5 or 5x8 cards / Quiz / Random / Verse      |
+|----------------------------------------------------------|
+| Score Panel (200px, 48px text)                           |
++----------------------------------------------------------+
+</pre>
+          </article>
+          <article>
+            <h3>🧠 AI 題庫生成系統設計</h3>
+            <p>輸入：主題、年齡層、題型、語言、題數。輸出：標準 Excel 欄位。</p>
+            <button id="generate-prompt">產生 AI Prompt</button>
+            <textarea id="prompt-output" readonly></textarea>
+          </article>
+          <article>
+            <h3>📊 Database Schema</h3>
+<pre>
+Table: questions
+- id (uuid)
+- mode (memory|quiz|random|verse)
+- question (text)
+- answer (text)
+- option_a, option_b, option_c, option_d (text)
+- reference (text)
+- verse_segments (json)
+- difficulty (int)
+- tags (json)
+- created_at, updated_at
+</pre>
+          </article>
+          <article>
+            <h3>🎮 State Machines</h3>
+<pre>
+Memory: idle -> shuffling -> firstPick -> secondPick -> resolve -> completed
+Quiz: idle -> presenting -> locked -> feedback -> next -> completed
+Random: idle -> drawing -> displayed -> acknowledged -> drawing/completed
+Verse: idle -> shuffled -> arranging -> validating -> success/retry -> completed
+Global: setup -> running -> paused -> ended
+</pre>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
